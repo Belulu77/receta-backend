@@ -1,0 +1,41 @@
+// prisma/schema.prisma
+// Este archivo define tu esquema de base de datos y genera el cliente Prisma.
+
+// El generador de cliente especifica que queremos el cliente JavaScript/TypeScript.
+generator client {
+  provider = "prisma-client-js"
+}
+
+// La fuente de datos define tu conexión a la base de datos MySQL.
+// Asegúrate de configurar tu variable de entorno DATABASE_URL en un archivo .env.
+datasource db {
+  provider = "mysql" // Cambiado a "mysql" para tu configuración de DB.
+  url      = env("DATABASE_URL")
+}
+
+// Definición del modelo Receta.
+model Receta {
+  id               String    @id @default(uuid()) // ID único para cada receta, generado automáticamente.
+  nombre           String    @db.VarChar(255) // Nombre de la receta, con longitud máxima para MySQL.
+  ingredientes     String    @db.Text // CAMBIO AQUÍ: Ahora es un String (TEXT en DB) para almacenar JSON.
+  instrucciones    String    @db.Text // Pasos para preparar la receta, usando TEXT para mayor longitud.
+  tiempoPreparacion Int       // Tiempo de preparación en minutos (entero).
+  dificultad       String    @db.VarChar(50) // Nivel de dificultad (ej: "Fácil", "Medio", "Difícil"), con longitud máxima.
+  createdAt        DateTime  @default(now()) @db.DateTime(3) // Fecha de creación del registro, con precisión de milisegundos.
+  updatedAt        DateTime  @updatedAt @db.DateTime(3) // Fecha de la última actualización del registro, con precisión de milisegundos.
+
+  // Índice para mejorar el rendimiento de búsqueda por nombre o dificultad.
+  @@index([nombre])
+  @@index([dificultad])
+}
+
+// Nuevo modelo Categoria.
+model Categoria {
+  id        String   @id @default(uuid()) // ID único para cada categoría.
+  nombre    String   @unique @db.VarChar(100) // Nombre de la categoría, debe ser único.
+  descripcion String?  @db.Text // Descripción opcional de la categoría.
+  createdAt DateTime @default(now()) @db.DateTime(3)
+  updatedAt DateTime @updatedAt @db.DateTime(3)
+
+  @@index([nombre]) // Índice para mejorar el rendimiento de búsqueda por nombre.
+}
